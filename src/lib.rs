@@ -42,53 +42,38 @@ mod tests {
     use super::*;
 
     #[test]
-    #[should_panic]
     fn args_new_too_few_args() {
-        match Args::new(
+        assert!(Args::new(
             &vec!(
                 String::from("./sgrep"),
                 String::from("<query>")
             )
-        ) {
-            Ok(val) => println!("Successfully initialized! {} {}", val.query, val.file_path),
-            Err(e) => panic!("{}", e)
-        }
+        ).is_err());
     }
-
+    
     #[test]
-    #[should_panic]
     fn args_new_too_many_args() {
-        match Args::new(
+        assert!(Args::new(
             &vec!(
                 String::from("./sgrep"),
                 String::from("<query>"),
-                String::from("<file_path>"),
+                String::from("<file_name>"),
                 String::from("<extra_arg>")
             )
-        ) {
-            Ok(val) => println!("Successfully initialized! {} {}", val.query, val.file_path),
-            Err(e) => panic!("{}", e)
-        }
+        ).is_err());
     }
-
+    
     #[test]
     fn invalid_file() {
-        if let Ok(args) = Args::new(
+        let args: Args = Args::new(
             &vec!(
                 String::from("./sgrep"),
                 String::from("<query>"),
-                String::from("./some_path_that_does_not_exist")
+                String::from("./file_does_not_exist.error")
             )
-        ) {
-            if let Err(e) = run(args) {
-                assert!(e.is::<std::io::Error>());
-            } else {
-                panic!("File path should not be valid.");
-            }
-        }
-        else {
-            panic!("Couldn't instantiate valid constructor.");
-        }
+        ).unwrap();
+        
+        assert!(run(args).unwrap_err().is::<std::io::Error>());
     }
 
 }
