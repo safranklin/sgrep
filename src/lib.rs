@@ -24,6 +24,12 @@ impl Args {
     
 }
 
+pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+    // Use lifetime annotation: 'a 
+    // to tell Rust the data returned by search will only live as long as the data that was passed
+    // in via contents.
+    vec![]
+}
 
 pub fn run(args: Args) -> Result<(), Box<dyn Error>> {
     // Read the string, if an error occurs return it to the caller for handling using the '?' operator.
@@ -40,7 +46,8 @@ pub fn run(args: Args) -> Result<(), Box<dyn Error>> {
 mod tests {
 
     use super::*;
-
+    
+    // Start:   === Args::new tests ===
     #[test]
     fn args_new_too_few_args() {
         assert!(Args::new(
@@ -62,7 +69,23 @@ mod tests {
             )
         ).is_err());
     }
+
+    // End:     === Args::new tests ===
     
+    // Start:   === search tests ===
+    #[test]
+    fn one_result() {
+        let query = "duct";
+        let contents = "\
+Rust:
+safe, fast, productive.
+Pick three.";
+
+        assert_eq!(vec!["safe, fast, productive."], search(query, contents));
+    }
+    // End:     === run tests ===
+    
+    // Start:   === run tests ===
     #[test]
     fn invalid_file() {
         let args: Args = Args::new(
@@ -75,5 +98,6 @@ mod tests {
         
         assert!(run(args).unwrap_err().is::<std::io::Error>());
     }
+    // End:     === run tests ===
 
 }
