@@ -25,16 +25,32 @@ impl Args {
 }
 
 pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+    // Searches for query through the lines in the contents.
+    // Returns the line that contain query.
+
     // Use lifetime annotation: 'a 
     // to tell Rust the data returned by search will only live as long as the data that was passed
     // in via contents.
-    vec![]
+
+    let mut matches = vec![];
+    
+    for line in contents.lines() {
+        if line.contains(query) {
+            matches.push(line);
+        }
+    }
+
+    matches
 }
 
 pub fn run(args: Args) -> Result<(), Box<dyn Error>> {
     // Read the string, if an error occurs return it to the caller for handling using the '?' operator.
     let contents: String = fs::read_to_string(&args.file_path)?;
-    println!("File {} contains contents:\n{}", args.file_path, contents);
+    
+
+    for line in search(&args.query, &contents) {
+        println!("{}", line);
+    }
     
     
     // Upon success return the unit type '()'
@@ -74,7 +90,7 @@ mod tests {
     
     // Start:   === search tests ===
     #[test]
-    fn one_result() {
+    fn one_match() {
         let query = "duct";
         let contents = "\
 Rust:
@@ -82,6 +98,28 @@ safe, fast, productive.
 Pick three.";
 
         assert_eq!(vec!["safe, fast, productive."], search(query, contents));
+    }
+
+    #[test]
+    fn multi_match() {
+        let query = "t";
+        let contents = "\
+Rust:
+safe, fast, productive.
+Pick three.";
+
+        assert_eq!(vec!["Rust:", "safe, fast, productive.", "Pick three."], search(query, contents));
+    }
+
+    #[test]
+    fn no_matches() {
+        let query = "test";
+        let contents = "\
+Rust:
+safe, fast, productive.
+Pick three.";
+
+        assert_eq!(Vec::<String>::new(), search(query, contents));
     }
     // End:     === run tests ===
     
