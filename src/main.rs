@@ -4,10 +4,7 @@ use std::process;
 use sgrep::Args;
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-
-    // Shadowing args
-    let args = Args::new(&args).unwrap_or_else(|error| {
+    let args = Args::new(env::args()).unwrap_or_else(|error| {
         eprintln!("Problem parsing arguments: {}", error);
         process::exit(1);
     });
@@ -16,6 +13,5 @@ fn main() {
         eprintln!("Application failure: {}", err);
         process::exit(1);
     }
-
 }
     
